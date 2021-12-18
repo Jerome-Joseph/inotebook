@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fetchuser = require('../middleware/fetchuser');
+const { success } = require('concurrently/src/defaults');
 
 const JWT_SECRET = 'thisIsAHighLvl$$Pass';
 
@@ -14,10 +15,11 @@ router.post('/createuser',[
     body('email',"Enter a valid email").isEmail(),
     body('password','Password should be more than 5 characters').isLength({ min: 5 })
 ],async (req,res)=>{
+    let success = false;
   // if there are any errors return bad request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({success, errors: errors.array() });
     }
     // res.send(req.body);
     //check user with same email exsit or not
@@ -25,7 +27,7 @@ router.post('/createuser',[
       
     let user = await User.findOne({email:req.body.email});
     if(user){
-      return res.status(400).json({error:"User with email already exits"})
+      return res.status(400).json({success, error:"User with email already exits"})
     }
     // create a new user
     const salt = await bcrypt.genSaltSync(10);
@@ -44,8 +46,8 @@ router.post('/createuser',[
       }
       const authToken = jwt.sign(data,JWT_SECRET);
       // console.log(authToken);
-  
-    res.json({authToken})
+      success = true;  
+    res.json({success, authToken})
 
   } catch (error) {
       console.error(error.message);
@@ -59,6 +61,7 @@ router.post('/login',[
   body('password','Password should not be blank').exists()
 ],async (req,res)=>{
 
+  let success = false;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -70,12 +73,14 @@ router.post('/login',[
 
     let user = await User.findOne({email});
     if (!user) {
-      return res.status(400).json({error:"Please use proper credentitals"})
+      success = false
+      return res.status(400).json({success, error:"Please use proper credentitals"})
     }
 
     const passCompare = await bcrypt.compare(password, user.password)
     if (!passCompare) {
-      return res.status(400).json({error:"Please use proper credentitals"})
+      success = false
+      return res.status(400).json({success, error:"Please use proper credentitals"})
     }
 
     const data={
@@ -85,7 +90,8 @@ router.post('/login',[
     }
     
     const authToken = jwt.sign(data,JWT_SECRET);
-    res.json({authToken});
+    success = true
+    res.json({success, authToken});
 
   } catch (error) {
     console.error(error.message);

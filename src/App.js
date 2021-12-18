@@ -8,6 +8,8 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
+import Login from './components/Login';
+import SignUp from './components/SignUp';
 
 function App() {
   return (
@@ -16,11 +18,17 @@ function App() {
     <Router>
     <Navbar/>
     <Switch>
-          <Route path="/about">
+          <Route exact path="/about">
             <About />
           </Route>
-          <Route path="/">
+          <Route exact path="/">
             <Home />
+          </Route>
+          <Route exact path="/login">
+            <Login />
+          </Route>
+          <Route exact path="/signup">
+            <SignUp />
           </Route>
         </Switch>
     </Router>
