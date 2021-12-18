@@ -31,21 +31,8 @@ const addNote = async(title, description, tag)=>{
         },
         body: JSON.stringify({title, description, tag}) 
       });
-      const json = await response.json()
-      console.log(json)
-      
-// CLient side add note logic
-    console.log("Adding a new data")
-    const note ={
-        "_id": "61b497aeddsf01dbl973a3f98889",
-        "user": "61a660edfa2727851891f1ae",
-        "title": title,
-        "description": description,
-        "tag": tag,
-        "date": "2021-12-11T12:21:02.127Z",
-        "__v": 0
-    }
-    setNotes(notes.concat(note))
+      const note = await response.json()
+      setNotes(notes.concat(note))
 }
 
 const deleteNote = async(id)=>{
